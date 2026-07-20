@@ -1,0 +1,39 @@
+﻿# 日志文件
+*.log
+logs/
+*.log.*
+
+# Node.js / 前端
+node_modules/
+dist/
+build/
+.vite/
+.cache/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+pip-log.txt
+
+# IDE 配置
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 系统文件
+Thumbs.db
+.DS_Store
+
+# 压缩包 / 大文件
+*.zip
+*.tar.gz
+*.7z

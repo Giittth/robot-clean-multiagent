@@ -1,0 +1,32 @@
+﻿replacement_code = '''
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+
+filepath = "D:\\\\Users\\\\ye0106\\\\PycharmProjects\\\\Agent_001\\\\frontend\\\\src\\\\components\\\\robot\\\\navigation\\\\MapView.vue"
+with open(filepath, encoding="utf-8") as f:
+    content = f.read()
+
+old = '  if (missionStore.current.state !== \\"idle\\") {\\n    ElMessage.warning(\\"\u673a\u5668\u4eba\u5f53\u524d\u72b6\u6001: \\" + missionStore.current.state + \\"\uff0c\u8bf7\u5148\u505c\u6b62\u5f53\u524d\u4efb\u52a1\\")\\n    return\\n  }'
+
+new = '  // terminal states (failed/stopped/success) \u89c6\u4e3a\u5df2\u7ed3\u675f\uff0c\u5141\u8bb8\u53d1\u9001\u65b0\u4efb\u52a1\\n  if (![\\"idle\\", \\"failed\\", \\"stopped\\", \\"success\\"].includes(missionStore.current.state)) {\\n    ElMessage.warning(\\"\u673a\u5668\u4eba\u5f53\u524d\u72b6\u6001: \\" + missionStore.current.state + \\"\uff0c\u8bf7\u5148\u505c\u6b62\u5f53\u524d\u4efb\u52a1\\")\\n    return\\n  }'
+
+print(f"old pattern length: {len(old)}")
+print(f"old in content: {old in content}")
+
+if old in content:
+    content = content.replace(old, new, 1)
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(content)
+    print("SUCCESS: Replaced!")
+else:
+    # Try to find approximate location
+    idx = content.find("missionStore.current.state")
+    if idx > 0:
+        surrounding = content[idx-20:idx+140]
+        print(f"Content at location: {repr(surrounding)}")
+        print(f"Looking for: {repr(old[:80])}...")
+    else:
+        print("Pattern not found at all!")
+'''
+with open("D:\\Users\\ye0106\\PycharmProjects\\Agent_001\\_patch.py", "w", encoding="utf-8") as f:
+    f.write(replacement_code)

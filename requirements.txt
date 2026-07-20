@@ -1,0 +1,39 @@
+# 核心框架
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+python-dotenv>=1.0.0
+
+# 异步 HTTP 客户端（LLM API 调用）
+aiohttp>=3.9.0
+
+# 数据库
+pymysql>=1.1.0
+bcrypt>=4.1.0
+
+# RAG 与向量库
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-chroma>=0.2.0
+langchain-ollama>=0.2.0
+chromadb>=0.5.0
+ollama>=0.4.0
+
+# RAG 评估（可选，仅 evaluate/ 模块使用）
+llama-index>=0.12.0
+llama-index-embeddings-fastembed>=0.3.0
+llama-index-llms-langchain>=0.4.0
+
+# 中文分词
+jieba>=0.42.1
+
+# 强化学习（可选，仅 agents/rl/ 模块使用）
+gym>=0.26.0
+stable-baselines3>=2.2.0
+
+# 数值计算
+numpy>=1.24.0
+
+# 通用工具
+requests>=2.31.0

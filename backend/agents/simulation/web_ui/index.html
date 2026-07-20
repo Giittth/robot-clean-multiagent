@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>机器人实时监控面板</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui; }
+    body { background: #1a1a1a; color: white; padding: 20px; }
+    .container { display: flex; gap: 15px; max-width: 1200px; margin: 0 auto; }
+    .panel { flex: 1; background: #222; padding: 18px; border-radius: 10px; }
+    .map {
+        width: 100%;
+        aspect-ratio: 1.4/1;
+        background: #111;
+        border: 1px solid #444;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+    .robot {
+        width: 15px;
+        height: 15px;
+        background: #00c8ff;
+        border-radius: 50%;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        transition: all 0.1s ease;
+    }
+    /* 碰撞指示器 */
+    .robot.collision {
+        background: #ff4444;
+        box-shadow: 0 0 10px #ff4444;
+    }
+    /* 激光雷达射线容器 */
+    .laser-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+    .laser-ray {
+        position: absolute;
+        height: 1px;
+        background: rgba(0, 200, 255, 0.3);
+        transform-origin: left center;
+    }
+    .info { margin-top: 14px; font-size: 14px; line-height: 1.8; color: #ccc; }
+    .title { font-size: 17px; margin-bottom: 10px; color: #00c8ff; }
+    .status { color: #0f0; font-weight: bold; }
+    /* 碰撞警告样式 */
+    .collision-warning {
+        color: #ff4444;
+        font-weight: bold;
+        animation: blink 0.5s infinite;
+    }
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.3; }
+    }
+    /* 传感器数据面板 */
+    .sensor-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .sensor-item {
+        background: #1a1a1a;
+        padding: 8px;
+        border-radius: 5px;
+        font-size: 12px;
+    }
+    .sensor-label {
+        color: #888;
+        margin-bottom: 4px;
+    }
+    .sensor-value {
+        color: #00c8ff;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧：地图视图 -->
+        <div class="panel">
+            <div class="title">🗺️ 地图视图</div>
+            <div class="map" id="map">
+                <!-- 新增：激光雷达层 -->
+                <canvas class="laser-container" id="laserCanvas"></canvas>
+                <div class="robot" id="robot"></div>
+            </div>
+            <div class="info">
+                <div>📍 X: <span id="x">0.00</span> m</div>
+                <div>📍 Y: <span id="y">0.00</span> m</div>
+                <div>🧭 角度: <span id="theta">0.00</span> °</div>
+                <div>🔋 电量: <span id="battery">12.00</span> V</div>
+                <div>✨ 清扫面积: <span id="area">0.00</span> m²</div>
+                <!-- ✅ 新增：碰撞状态 -->
+                <div>⚠️ 碰撞: <span id="collision">无</span></div>
+                <div>🌐 连接状态: <span class="status" id="status">未连接</span></div>
+            </div>
+        </div>
+
+        <!-- 右侧传感器详情面板 -->
+        <div class="panel">
+            <div class="title">📊 传感器数据</div>
+            <div class="sensor-grid">
+                <div class="sensor-item">
+                    <div class="sensor-label">前方障碍物距离</div>
+                    <div class="sensor-value" id="frontDist">--</div>
+                </div>
+                <div class="sensor-item">
+                    <div class="sensor-label">左侧障碍物距离</div>
+                    <div class="sensor-value" id="leftDist">--</div>
+                </div>
+                <div class="sensor-item">
+                    <div class="sensor-label">右侧障碍物距离</div>
+                    <div class="sensor-value" id="rightDist">--</div>
+                </div>
+                <div class="sensor-item">
+                    <div class="sensor-label">最小障碍物距离</div>
+                    <div class="sensor-value" id="minDist">--</div>
+                </div>
+            </div>
+
+            <!-- RAG 建议显示 -->
+            <div style="margin-top: 15px;">
+                <div class="title">RAG 决策建议</div>
+                <div id="ragAdvice" style="background: #1a1a1a; padding: 10px; border-radius: 5px; font-size: 12px; color: #aaa; min-height: 60px;">
+                    等待数据...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:8765');
+        const robot = document.getElementById('robot');
+        const status = document.getElementById('status');
+        const map = document.querySelector('.map');
+        const laserCanvas = document.getElementById('laserCanvas');
+        const ctx = laserCanvas.getContext('2d');
+
+        // 设置 Canvas 尺寸
+        function resizeCanvas() {
+            laserCanvas.width = map.clientWidth;
+            laserCanvas.height = map.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        ws.onopen = () => {
+            status.textContent = '已连接';
+            status.style.color = '#0f0';
+        };
+
+        ws.onclose = () => {
+            status.textContent = '未连接';
+            status.style.color = '#f44';
+        };
+
+        ws.onerror = () => {
+            status.textContent = '连接异常';
+            status.style.color = '#f44';
+        };
+
+        ws.onmessage = (evt) => {
+            const data = JSON.parse(evt.data);
+            const pose = data.pose || {x:0, y:0, theta:0};
+            const sensor = data.sensor || {};
+
+            // 更新基本信息
+            document.getElementById('x').textContent = pose.x?.toFixed(2);
+            document.getElementById('y').textContent = pose.y?.toFixed(2);
+            document.getElementById('theta').textContent = (pose.theta * 180 / Math.PI)?.toFixed(1);
+            document.getElementById('battery').textContent = (sensor.battery_voltage || 0).toFixed(2);
+            document.getElementById('area').textContent = (data.cleaned_area || 0).toFixed(2);
+
+            // 更新碰撞状态
+            const collisionEl = document.getElementById('collision');
+            if (sensor.collision) {
+                collisionEl.textContent = '碰撞检测！';
+                collisionEl.className = 'collision-warning';
+                robot.classList.add('collision');
+            } else {
+                collisionEl.textContent = '正常';
+                collisionEl.className = '';
+                robot.classList.remove('collision');
+            }
+
+            // 更新 RAG 建议
+            if (data.rag_advice) {
+                document.getElementById('ragAdvice').textContent = data.rag_advice;
+            }
+
+            // 处理激光雷达数据
+            const laserData = sensor.laser || [];
+            if (laserData.length > 0) {
+                drawLaserRays(laserData, pose);
+                updateSensorStats(laserData);
+            }
+
+            // 修复长方形地图定位 → 机器人永远正圆，不挤压
+            const mapWidth = map.clientWidth;
+            const mapHeight = map.clientHeight;
+            const scaleX = mapWidth / 20;
+            const scaleY = mapHeight / 20;
+
+            const rx = mapWidth / 2 + pose.x * scaleX;
+            const ry = mapHeight / 2 - pose.y * scaleY;
+
+            robot.style.left = rx + 'px';
+            robot.style.top = ry + 'px';
+        };
+
+        // 绘制激光雷达射线
+        function drawLaserRays(laserData, pose) {
+            const mapWidth = laserCanvas.width;
+            const mapHeight = laserCanvas.height;
+            const scaleX = mapWidth / 20;
+            const scaleY = mapHeight / 20;
+
+            const centerX = mapWidth / 2 + pose.x * scaleX;
+            const centerY = mapHeight / 2 - pose.y * scaleY;
+
+            // 清空画布
+            ctx.clearRect(0, 0, mapWidth, mapHeight);
+
+            // 采样绘制（每10度画一条线，避免过于密集）
+            const step = 10;
+            ctx.lineWidth = 1;
+
+            for (let angle = 0; angle < 360; angle += step) {
+                const distance = laserData[angle];
+                if (!distance || distance >= 5.0) continue; // 跳过无效数据
+
+                // 计算射线终点
+                const rayAngle = pose.theta + (angle * Math.PI / 180);
+                const endX = centerX + distance * scaleX * Math.cos(rayAngle);
+                const endY = centerY - distance * scaleY * Math.sin(rayAngle);
+
+                // 根据距离设置颜色（近=红，远=绿）
+                const intensity = Math.min(1, distance / 2.0);
+                const r = Math.floor(255 * (1 - intensity));
+                const g = Math.floor(255 * intensity);
+                ctx.strokeStyle = `rgba(${r}, ${g}, 100, 0.4)`;
+
+                // 绘制射线
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+            }
+        }
+
+        // 更新传感器统计信息
+        function updateSensorStats(laserData) {
+            // 前方（350-10度）
+            const frontAngles = [...Array(20).keys()].map(i => (i + 350) % 360);
+            const frontDist = Math.min(...frontAngles.map(a => laserData[a] || 5.0));
+
+            // 左侧（80-100度）
+            const leftDist = Math.min(...Array.from({length: 20}, (_, i) => laserData[i + 80] || 5.0));
+
+            // 右侧（260-280度）
+            const rightDist = Math.min(...Array.from({length: 20}, (_, i) => laserData[i + 260] || 5.0));
+
+            // 最小距离
+            const minDist = Math.min(...laserData.filter(d => d > 0));
+
+            document.getElementById('frontDist').textContent = frontDist.toFixed(2) + ' m';
+            document.getElementById('leftDist').textContent = leftDist.toFixed(2) + ' m';
+            document.getElementById('rightDist').textContent = rightDist.toFixed(2) + ' m';
+            document.getElementById('minDist').textContent = minDist.toFixed(2) + ' m';
+
+            // 危险距离警告
+            [frontDist, leftDist, rightDist].forEach((dist, idx) => {
+                const el = [document.getElementById('frontDist'),
+                           document.getElementById('leftDist'),
+                           document.getElementById('rightDist')][idx];
+                if (dist < 0.5) {
+                    el.style.color = '#ff4444';
+                } else if (dist < 1.0) {
+                    el.style.color = '#ffaa00';
+                } else {
+                    el.style.color = '#00c8ff';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
