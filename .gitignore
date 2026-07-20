@@ -37,3 +37,8 @@ Thumbs.db
 *.zip
 *.tar.gz
 *.7z
+
+# 数据库文件
+*.sqlite3
+*.db
+*.sqlite
