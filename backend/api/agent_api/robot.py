@@ -325,6 +325,19 @@ async def get_chat_for_task(request: Request, command: str = ""):
 
 @router.get("/rooms")
 async def get_rooms(request: Request):
+    env, _, _ = _get_components(request)
+    if env is None:
+        raise HTTPException(status_code=503, detail="Environment not ready")
+    rooms_data = env.scenario.get("rooms", [])
+    rooms_dict = {}
+    for room in rooms_data:
+        name = room["name"]
+        rooms_dict[name] = {
+            "polygon": room["polygon"],
+            "center": room.get("center"),
+            "entry_point": room.get("entry_point"),
+        }
+    return rooms_dict
 
 
 @router.post("/navigation/mode")
@@ -354,16 +367,3 @@ async def switch_nav_mode(request: Request, nav_req: NavModeRequest):
         raise HTTPException(status_code=400, detail="mode must be 'rl' or 'traditional'")
     await container.navigation.start()
     return {"mode": nav_req.mode}
-    env, _, _ = _get_components(request)
-    if env is None:
-        raise HTTPException(status_code=503, detail="Environment not ready")
-    rooms_data = env.scenario.get("rooms", [])
-    rooms_dict = {}
-    for room in rooms_data:
-        name = room["name"]
-        rooms_dict[name] = {
-            "polygon": room["polygon"],
-            "center": room.get("center"),
-            "entry_point": room.get("entry_point"),
-        }
-    return rooms_dict

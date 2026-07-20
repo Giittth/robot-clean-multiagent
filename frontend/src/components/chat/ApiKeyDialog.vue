@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <el-dialog v-model="visible" title="API 密钥管理" width="540px" :close-on-click-modal="false">
     <div class="dialog-scroll-body">
     <div class="dialog-model-section">

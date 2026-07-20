@@ -1,48 +1,44 @@
-﻿import { defineStore } from 'pinia'
-
-
-
-
+import { defineStore } from 'pinia'
 
 export const useMissionStore = defineStore('mission', {
 
   state: () => ({
 
-    // 褰撳墠浠诲姟淇℃伅
+    // 閻熸粎澧楅幐鍛婃櫠閻樺磭顩烽悹鍥ㄥ絻椤倕菐閸ワ絽澧插ù?
 
     current: {
 
-      taskId: null,           // 褰撳墠浠诲姟 ID
+      taskId: null,           // 閻熸粎澧楅幐鍛婃櫠閻樺磭顩烽悹鍥ㄥ絻椤?ID
 
       state: 'idle',          // idle, running, paused, recharging, charging, success, failed, emergency_stop
 
-      progress: 0,            // 鏁翠綋杩涘害 0-1
+      progress: 0,            // 闂佽桨鑳剁换婵堢礊鐎ｎ偅浜ゆ繛鎴灻?0-1
 
-      graphId: null,          // 浠诲姟鍥?ID
+      graphId: null,          // 婵炲濮鹃褎鎱ㄩ悢鐓庣倞?ID
 
-      sessionId: null,        // 浼氳瘽 ID
+      sessionId: null,        // 婵炴潙鍚嬫穱娲儊?ID
 
-      currentTaskDesc: '',    // 褰撳墠鎵ц鐨勪换鍔℃弿杩帮紙浠?GraphExecutor 鑾峰彇锛?
+      currentTaskDesc: '',    // 閻熸粎澧楅幐鍛婃櫠閻樿绠ョ憸鎴︺€侀幋锔藉剭闁告洦浜濆畷鏌ユ煕閺傚搫澧茬€殿喗瀵у鑽ゆ暜椤斿墽顦╂繛?GraphExecutor 闂佸吋鍎抽崲鑼躲亹閸ヮ剚鏅?
 
-      graphCompleted: 0,      // 宸插畬鎴愬浘鑺傜偣鏁?
+      graphCompleted: 0,      // 閻庣懓鎲¤ぐ鍐偩椤掑嫬绠ｉ柟閭﹀墯缁傚牓鏌ら崫鍕偓濠氬磻閿濆鏋?
 
-      graphTotal: 0           // 鎬诲浘鑺傜偣鏁?
+      graphTotal: 0           // 闂佽鍓濋褍霉濮椻偓閹崇偤宕掑鍐у寲闂?
 
     },
 
-    // 浠诲姟鏃堕棿杞达紙鐢ㄤ簬灞曠ず浠诲姟鍥炬墽琛岄『搴忥級
+    // 婵炲濮鹃褎鎱ㄩ悢鐓庣睄闁割偅娲橀敍鐔煎级閻愯埖褰х紒杈ㄧ懇閹粙濡搁妶鍥闁诲繒鍋炲ú婊堝Φ濮橆厾顩烽悹鍥ㄥ絻椤倝鏌涢妷褍浜惧褏鏅幃鏉跨暆閸曗斁鍋撴惔銏″劅闊洢鍎崇粈?
 
-    timeline: [],             // 瀛樺偍浠诲姟鑺傜偣 { id, name, status, startedAt, finishedAt, error }
+    timeline: [],             // 闁诲孩绋掗敋闁稿绉电粋鎺旀嫚閹绘帩娼抽梺鐓庢惈閸婂宕?{ id, name, status, startedAt, finishedAt, error }
 
-    // 浠诲姟鍘嗗彶锛堝凡瀹屾垚鐨勪换鍔★級
+    // 婵炲濮鹃褎鎱ㄩ悢鐓庡偍闁糕剝顨呴拺澶愭煥濞戞澧曢柛鎴磿閳ь剛鎳撻張顒勫垂濮樿埖鍎嶉柛鏇ㄤ簼瀹曟煡鏌涢弬鐑橆潐缂?
 
-    history: [],              // 鏈€澶氬瓨鍌?50 鏉★紝姣忔潯鍖呭惈 { taskId, graphId, sessionId, success, duration, timestamp, error }
+    history: [],              // 闂佸搫鐗冮崑鎾愁熆閼镐絻澹橀柣掳鍔戝畷?50 闂佸搫顦Σ鍕濠靛柊鎺曠疀閺冣偓閽傚鏌涢弽褎鍣归柟?{ taskId, graphId, sessionId, success, duration, timestamp, error }
 
-    // 当前任务开始时间（用于计算耗时）
+    // 鐟滅増鎸告晶鐘崇鐠囨彃顫ょ€殿喒鍋撳┑顔碱儐濡炲倿姊绘潏鍓х闁活潿鍔嬬花顒傛媼閿涘嫮鏆柤鐗堫殕濡炲倿鏁?
 
     startedAt: null,
 
-    // 任务规划可视化
+    // 濞寸姾顕ф慨鐔烘喆閸曨偄鐏婇柛娆樺灥椤宕?
 
     graphStructure: null,
 
@@ -54,7 +50,7 @@ export const useMissionStore = defineStore('mission', {
 
   getters: {
 
-    // 浠诲姟鐘舵€佷腑鏂?
+    // 婵炲濮鹃褎鎱ㄩ悢鍏煎亹闁煎摜顣介崑鎾存媴閻ゎ垰骞€闂?
 
     stateChinese: (state) => {
 
@@ -89,7 +85,7 @@ export const useMissionStore = defineStore('mission', {
   },
 
   actions: {
-    // 更新任务状态（来自 task_state_changed 或 task_progress 消息）
+    // 闁哄洤鐡ㄩ弻濠冪鐠囨彃顫ら柣妯垮煐閳ь兛绶ょ槐娆撳级閵夈劌娈?task_state_changed 闁?task_progress 婵炴垵鐗婃导鍛存晬?
     updateCurrent(payload) {
       if (payload.state !== undefined) this.current.state = payload.state
 
@@ -109,7 +105,7 @@ export const useMissionStore = defineStore('mission', {
 
       if (payload.graph_total !== undefined) this.current.graphTotal = payload.graph_total
 
-      // 濡傛灉鐘舵€佸彉涓?running 涓斾箣鍓嶆湭璁板綍寮€濮嬫椂闂达紝鍒欒褰?
+      // 婵犵鈧啿鈧綊鎮樻径鎰亹闁煎摜顣介崑鎾存媴缁嬭法绉繛?running 婵炴垶鎸婚弻褏绮婚敐澶婄鐎广儱妫欏鎾绘偣娴ｈ绶茬紓宥呯Т椤曪綁鍩€椤掍焦鍙忛悗锝庡亝椤ρ囨⒒閸屾繃褰х紒杈ㄧ箞瀹曟艾鈻庨幒婵嗘暪閻?
 
       if (payload.state === 'running' && this.startedAt === null) {
 
@@ -117,12 +113,12 @@ export const useMissionStore = defineStore('mission', {
 
       }
 
-      // 濡傛灉浠诲姟缁撴潫锛坰uccess/failed/stopped锛夛紝璁板綍鍘嗗彶
+      // 婵犵鈧啿鈧綊鎮樻径瀣浄閻犲洦褰冮～銈囩磽娴ｈ灏版繛纰卞亰閺佸秹宕搁惃宄渃ess/failed/stopped闂佹寧绋戦¨鈧紒杈ㄧ箘閹峰寮剁捄銊梺鍛娒Λ妤勩亹?
 
       if (['success', 'failed', 'stopped'].includes(payload.state)) {
         const terminalState = payload.state === 'success' ? 'success'
           : payload.state === 'failed' ? 'failed' : 'stopped'
-        // 将 taskStatusMap 中所有仍在进行中的节点标记为终止态
+        // 閻?taskStatusMap 濞戞搩鍘芥晶宥夊嫉婢跺鐭濋柛锔哄姀缁绘鎮扮仦鑹板幀闁汇劌瀚俊顓㈡倷鐟欏嫮鍨奸悹渚€顣︾拹鐔虹磼閸噥鍓鹃柟?
         const updatedMap = { ...this.taskStatusMap }
         for (const [id, status] of Object.entries(updatedMap)) {
           if (['pending', 'ready', 'dispatched', 'running'].includes(status)) {
@@ -144,17 +140,17 @@ export const useMissionStore = defineStore('mission', {
 
 
 
-    // 鏇存柊鏃堕棿杞达紙浠诲姟鍥炬墽琛岃繃绋嬩腑鐨勮妭鐐瑰彉鍖栵級
+    // 闂佸搫娲ら悺銊╁蓟婵犲洤绫嶉柛顐ｆ礃閿涚喖寮堕悙鑸靛涧缂佽鲸鐟︾粋鎺旀嫚閹绘帩娼抽梺鎼炲劤閸嬫挻鏅堕悾灞惧仒鐎光偓閸愵亞鐣虹紓浣割儏椤戝嫰鎳欓幋锔藉剭闁告洦鍠栬灐闂佺粯鍔楅幊鎾广亹婢舵劕绀岄柡宥囨暩缁€?
 
     updateTimeline(tasks) {
 
-      // tasks 鏍煎紡: [{ id, name, status }]
+      // tasks 闂佸搫绉堕崢褏妲? [{ id, name, status }]
 
       this.timeline = tasks
 
     },
 
-    // 鏇存柊鍥剧粨鏋勶紙鏉ヨ嚜 graph_structure 娑堟伅锛?
+    // 闂佸搫娲ら悺銊╁蓟婵犲洤鐐婇柛鎾楀懏灏濋梺鍝勵儏鐎氬摜妲愬▎鎾崇骇闁靛鍔屽▓?graph_structure 濠电偞鍨甸悧濠冨閸涘瓨鏅?
 
     updateGraphStructure(payload) {
 
@@ -168,7 +164,7 @@ export const useMissionStore = defineStore('mission', {
 
       }
 
-      // 閲嶇疆 taskStatusMap锛堟柊鍥惧紑濮嬶級
+      // 闂備焦褰冪粔鍫曟偪?taskStatusMap闂佹寧绋戦悧濠囧蓟婵犲洤鐐婇柟顖嗗懐锛涙繝娈垮枛椤戞垹妲?
 
       this.taskStatusMap = {}
 
@@ -180,7 +176,7 @@ export const useMissionStore = defineStore('mission', {
 
     },
 
-    // 鏇存柊閫愯妭鐐圭姸鎬侊紙鏉ヨ嚜 task_node_status 娑堟伅锛?
+    // 闂佸搫娲ら悺銊╁蓟婵犲洦鐒婚柟閭﹀灠铻￠梺缁樺姇濠€杈ㄦ叏閹间礁绠戝〒姘功缁€鍕煛婢跺牆鍔ラ柛?task_node_status 濠电偞鍨甸悧濠冨閸涘瓨鏅?
 
     updateTaskStatusMap(statusMap) {
 
@@ -192,7 +188,7 @@ export const useMissionStore = defineStore('mission', {
 
 
 
-    // 娣诲姞鍒板巻鍙茶褰?
+    // 濠电儑缍€椤曆勬叏閻愬搫绀嗛柡澶婄仢閸у﹪鏌涘▎鎺戣敿妞ゆ柨娲╅妵?
 
     addToHistory(result) {
 
@@ -216,11 +212,11 @@ export const useMissionStore = defineStore('mission', {
 
       this.history.unshift(record)
 
-      // 淇濈暀鏈€杩?50 鏉?
+      // 婵烇絽娲︾换鍕汲閳ь剟鏌￠崼姘壕闁?50 闂?
 
       if (this.history.length > 50) this.history.pop()
 
-      // 鍙€夛細鎸佷箙鍖栧埌 localStorage
+      // 闂佸憡鐟崹鍫曞焵椤掆偓椤р偓缂佸彉鍗抽獮鎰媴妞嬪海鏆梺鍛婄墬閻楁洟宕?localStorage
 
       this.saveHistoryToLocal()
 
@@ -228,7 +224,7 @@ export const useMissionStore = defineStore('mission', {
 
 
 
-    // 娓呯┖鍘嗗彶
+    // 濠电偞鎸搁幊鎰板煘閺嶎厼鍌ㄩ柛鈩冾殔閽?
 
     async clearHistory() {
 
@@ -252,7 +248,7 @@ export const useMissionStore = defineStore('mission', {
 
 
 
-    // 淇濆瓨鍘嗗彶鍒版湰鍦板瓨鍌?
+    // 婵烇絽娲︾换鍌炴偤閵娾晛鍌ㄩ柛鈩冾殔閽戝鏌涢幒鏂款暭婵犫偓娴兼潙鎹堕柡澶庢硶閹界娀鏌?
 
     saveHistoryToLocal() {
 
@@ -266,7 +262,7 @@ export const useMissionStore = defineStore('mission', {
 
 
 
-    // 鍔犺浇鍘嗗彶璁板綍锛堥〉闈㈠垵濮嬪寲鏃惰皟鐢級
+    // 闂佸憡姊绘慨鎯归崶顒€鍌ㄩ柛鈩冾殔閽戝鎮规担瑙勭凡缂傚秴绉归弫宥夊醇閵夛絺鍋撴径鎰棃闁靛繒濮撮悘銉モ攽椤旂⒈鍎忛悗鍨叀瀵噣骞嗛幍顔筋啀闂佹眹鍩勯悡澶屾?
 
     loadHistoryFromLocal() {
 
@@ -320,7 +316,7 @@ export const useMissionStore = defineStore('mission', {
 
 
 
-    // 浠庡悗绔?API 鍔犺浇浠诲姟鍘嗗彶
+    // 婵炲濮存鎼佸箖濡ゅ啰鍗?API 闂佸憡姊绘慨鎯归崶銊ь浄閻犲洦褰冮～銈夋煕濡儤顥滅憸?
 
     async loadHistoryFromAPI() {
 
@@ -356,7 +352,7 @@ export const useMissionStore = defineStore('mission', {
 
 
 
-        // 3. Build mission entries first (they are authoritative 鈥?have missionId + replay data)
+        // 3. Build mission entries first (they are authoritative 闂?have missionId + replay data)
 
         const combined = []
 
@@ -487,4 +483,4 @@ export const useMissionStore = defineStore('mission', {
       }
     },
   },
-      // 如果任务结束（success/failed/stopped），更新 taskStatusMap 并更新 taskStatusMap 并记录历史
+})

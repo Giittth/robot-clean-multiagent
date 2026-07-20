@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="chat-container">
     <div class="message-list" ref="messageListRef">
       <MessageBubble

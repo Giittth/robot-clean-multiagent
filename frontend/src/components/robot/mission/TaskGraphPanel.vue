@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="task-graph-panel">
     <div v-if="!graphStructure || !graphStructure.tasks || !graphStructure.tasks.length" class="empty-state">
       <el-empty description="暂无任务图数据" :image-size="80" />
